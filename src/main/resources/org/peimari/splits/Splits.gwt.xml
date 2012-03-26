@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module rename-to='splits'>
+	<!-- Inherit the core Web Toolkit stuff. -->
+	<inherits name='com.google.gwt.user.User' />
+	<inherits name='org.peimari.PeimariDomain' />
+	
+	<inherits name='org.moxieapps.gwt.highcharts.Highcharts' />
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+	<script src="js/highcharts.js"></script>
+
+	<inherits name="com.google.gwt.xml.XML" />
+	<inherits name="com.google.gwt.resources.Resources" />
+
+	<!-- Specify the app entry point class. -->
+	<entry-point class='org.peimari.splits.client.Splits' />
+
+	<!-- Specify the paths for translatable code -->
+	<source path='client' />
+	<source path='shared' />
+	
+	<!-- Comment this out during development -->
+	<!-- <add-linker name="xs" /> -->
+
+</module>

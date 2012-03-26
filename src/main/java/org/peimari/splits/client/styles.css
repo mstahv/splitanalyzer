@@ -1,0 +1,61 @@
+.splitanalyzer .verygood {
+	color: #00BA19;
+}
+
+.splitanalyzer .good {
+	color: #016E10;
+}
+
+.splitanalyzer .ok {
+	
+}
+
+.splitanalyzer .bad {
+	color: #A84545;
+}
+
+.splitanalyzer .verybad {
+	color: #FF0000;
+}
+
+.splitanalyzer .settings>* {
+	float: left;
+}
+
+.splitanalyzer .settings .gwt-Label {
+	margin-left: 10px;
+}
+
+.splitanalyzer .best {
+	text-decoration: underline;
+}
+
+.splitanalyzer .header td {
+	font-weight: bold;
+}
+
+.splitanalyzer .selected {
+	background: #ccc;
+}
+
+.splitanalyzer td {
+	white-space: nowrap;
+	padding-right: 6px;
+	text-align:right;
+	border: 1px solid gray;
+}
+
+.splitanalyzer .name {
+	text-align: left;
+	cursor: pointer;
+}
+
+
+.splitanalyzer table {
+	border-collapse: collapse;
+}
+
+.splitanalyzer table,
+.split-chart {
+	clear:both;
+}

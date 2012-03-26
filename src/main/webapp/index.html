@@ -1,0 +1,62 @@
+<!doctype html>
+<!-- The DOCTYPE declaration above will set the     -->
+<!-- browser's rendering engine into                -->
+<!-- "Standards Mode". Replacing this declaration   -->
+<!-- with a "Quirks Mode" doctype is not supported. -->
+
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+<!--                                           -->
+<!-- Any title is fine                         -->
+<!--                                           -->
+<title>IOF Split analyzr</title>
+
+<!--                                           -->
+<!-- This script loads your compiled module.   -->
+<!-- If you add any GWT meta tags, they must   -->
+<!-- be added before this line.                -->
+<!--                                           -->
+<script type="text/javascript" src="splits/splits.nocache.js"></script>
+
+<script type="text/javascript">
+	splitanalyzerform = true;
+</script>
+</head>
+
+
+<!--                                           -->
+<!-- The body can have arbitrary html, or      -->
+<!-- you can leave the body empty if you want  -->
+<!-- to create a completely dynamic UI.        -->
+<!--                                           -->
+<body>
+
+	<!-- OPTIONAL: include this if you want history support -->
+	<iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1'
+		style="position: absolute; width: 0; height: 0; border: 0"></iframe>
+	<h1>PeimariSplitAnalyzer</h1>
+	<p>
+		This is an example and test page for PeimariSplitAnalyzer aka "köyhän
+		miehen winsplits". See project page for more details. Originally
+		created for Peimarin Rastit when changing result system to EResults
+		and at the same time making larger overall rework for Peimarin Rastit
+		site. The site admin app was created on "community time" sponsored by
+		<a href="http://vaadin.com/"> Vaadin ltd.</a>. This is pure GWT app
+		that eats iof xml files or bit derived "peimari xml" format.
+	</p>
+
+	<p>Note, this is not optimal setup for the app. See eg.
+		http://paimionrasti.fi/peimari for a better integration example.</p>
+
+
+	<!-- RECOMMENDED if your web app will not function without JavaScript enabled -->
+	<noscript>
+		<div
+			style="width: 22em; position: absolute; left: 50%; margin-left: -11em; color: red; background-color: white; border: 1px solid red; padding: 4px; font-family: sans-serif">
+			Your web browser must have JavaScript enabled in order for this
+			application to display correctly.</div>
+	</noscript>
+</body>
+</html>
