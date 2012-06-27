@@ -34,6 +34,9 @@ public class IofParser implements Parser {
 			Node item = elementsByTagName.item(i);
 			rl.getClassResults().add(parseClassResult((Element) item));
 		}
+		if(rl.getClassResults().isEmpty()) {
+			throw new RuntimeException("No results found");
+		}
 		return rl;
 	}
 

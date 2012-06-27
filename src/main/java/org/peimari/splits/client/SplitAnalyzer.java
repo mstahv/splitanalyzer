@@ -1,6 +1,5 @@
 package org.peimari.splits.client;
 
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -26,6 +25,7 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
@@ -192,11 +192,11 @@ public class SplitAnalyzer extends FlowPanel {
 
 		List<Result> results = classResult.getResults();
 		ArrayList<SplitTime> superman = new ArrayList<SplitTime>();
-		calculateSuperman(results, superman );
+		calculateSuperman(results, superman);
 
 		int size = results.get(0).getSplitTimes().size();
 
-		long bestTime = superman.get(superman.size() -1).getTime();
+		long bestTime = superman.get(superman.size() - 1).getTime();
 
 		int cols = size + 3;
 		int rows = results.size() + 1; // competitors + header
@@ -213,8 +213,6 @@ public class SplitAnalyzer extends FlowPanel {
 		for (int i = 1; i < size; i++) {
 			grid.setHTML(0, i + 2, i + "-" + (i + 1));
 		}
-		
-		
 
 		for (int i = 0; i < results.size(); i++) {
 			final Result r = results.get(i);
@@ -223,7 +221,7 @@ public class SplitAnalyzer extends FlowPanel {
 			}
 			final int row = i + 1;
 			String html = r.getPosition() + ". " + r.getPerson().toString();
-			Label name = new Label(html);
+			Label name = new HTML(html);
 			name.addClickHandler(new ClickHandler() {
 				@Override
 				public void onClick(ClickEvent event) {
@@ -246,7 +244,8 @@ public class SplitAnalyzer extends FlowPanel {
 				SplitTime splitTime = splitTimes.get(j);
 				// Direct HTML generation for better performance performance
 				StringBuilder sb = new StringBuilder();
-				// TODO make split pos matter a bit for "anylyze"
+				// TODO relative time should ignore worst n splits
+				// TODO consider making split pos matter a bit
 
 				Long superManDelta = superman.get(j).getDeltaTime();
 				double expectedTime = (superManDelta * r.getTime() / (double) bestTime);
@@ -278,7 +277,8 @@ public class SplitAnalyzer extends FlowPanel {
 					}
 				}
 				if (cumutimes) {
-					long toBest = splitTime.getTime() - superman.get(j).getTime();
+					long toBest = splitTime.getTime()
+							- superman.get(j).getTime();
 					String toBestStr = "+" + Util.formatTime(toBest);
 					sb.append("<div");
 					if (!inlineDifferences) {
@@ -312,10 +312,10 @@ public class SplitAnalyzer extends FlowPanel {
 		if (relativeSuccesBasedOnTime > 1.1) {
 			return "bad";
 		}
-		if (relativeSuccesBasedOnTime > 0.9) {
+		if (relativeSuccesBasedOnTime > 0.95) {
 			return "ok";
 		}
-		if (relativeSuccesBasedOnTime > 0.75) {
+		if (relativeSuccesBasedOnTime > 0.8) {
 			return "good";
 		}
 		return "verygood";
@@ -368,24 +368,26 @@ public class SplitAnalyzer extends FlowPanel {
 
 	public static void calculateSuperman(Collection<Result> results,
 			ArrayList<SplitTime> zeroLine) {
-		boolean first =true;
+		boolean first = true;
 		for (Iterator<Result> iterator = results.iterator(); iterator.hasNext();) {
 			Result r = (Result) iterator.next();
-			List<SplitTime> splitTimes = r.getSplitTimes();
-			for (int i = 0; i < splitTimes.size(); i++) {
-				SplitTime splitTime = splitTimes.get(i);
-				if(first) {
-					SplitTime s = new SplitTime();
-					s.setDeltaTime(splitTime.getDeltaTime());
-					zeroLine.add(s);
-				} else {
-					SplitTime s = zeroLine.get(i);
-					if(splitTime.getDeltaTime() < s.getDeltaTime()) {
+			if (r.getCompetitorStatus() == CompetitorStatus.OK) {
+				List<SplitTime> splitTimes = r.getSplitTimes();
+				for (int i = 0; i < splitTimes.size(); i++) {
+					SplitTime splitTime = splitTimes.get(i);
+					if (first) {
+						SplitTime s = new SplitTime();
 						s.setDeltaTime(splitTime.getDeltaTime());
+						zeroLine.add(s);
+					} else {
+						SplitTime s = zeroLine.get(i);
+						if (splitTime.getDeltaTime() < s.getDeltaTime()) {
+							s.setDeltaTime(splitTime.getDeltaTime());
+						}
 					}
 				}
+				first = false;
 			}
-			first = false;
 		}
 		long cumu = 0;
 		for (SplitTime splitTime : zeroLine) {

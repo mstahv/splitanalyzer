@@ -48,6 +48,13 @@ public class XhrProvider {
 					}
 				}
 				if(rl == null) {
+					try {
+						rl = new PirilaHtmlParser().parse(text);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				if(rl == null) {
 					Window.alert("Results cound't be handled format must be either 'peimari xml' or 'iof xml'.");
 				} else {
 					splitAnalyzer.setResultList(rl);
