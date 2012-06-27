@@ -15,6 +15,21 @@
 	</properties>
 
 	<build>
+		<resources>
+			<!-- Package this sources and .gwt.xml files to make this compatible with 
+				GWT -->
+			<resource>
+				<directory>src/main/java</directory>
+				<includes>
+					<include>**/*.java</include>
+					<include>**/*.gwt.xml</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+		</resources>
+
 		<plugins>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -22,6 +37,7 @@
 				<version>2.4.0</version>
 				<configuration>
 					<runTarget>index.html</runTarget>
+<!-- 					<logLevel>DEBUG</logLevel> -->
 				</configuration>
 			</plugin>
 			<plugin>

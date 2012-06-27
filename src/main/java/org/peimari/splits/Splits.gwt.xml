@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module rename-to='splits'>
+
 	<!-- Inherit the core Web Toolkit stuff. -->
 	<inherits name='com.google.gwt.user.User' />
 	<inherits name='org.peimari.PeimariDomain' />
@@ -16,9 +17,8 @@
 
 	<!-- Specify the paths for translatable code -->
 	<source path='client' />
-	<source path='shared' />
 	
 	<!-- Comment this out during development -->
-	<!-- <add-linker name="xs" /> -->
-
+	<add-linker name="xs" /> 
+   
 </module>
