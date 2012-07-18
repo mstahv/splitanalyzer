@@ -6,8 +6,6 @@
 	<inherits name='org.peimari.PeimariDomain' />
 	
 	<inherits name='org.moxieapps.gwt.highcharts.Highcharts' />
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-	<script src="js/highcharts.js"></script>
 
 	<inherits name="com.google.gwt.xml.XML" />
 	<inherits name="com.google.gwt.resources.Resources" />
@@ -18,7 +16,6 @@
 	<!-- Specify the paths for translatable code -->
 	<source path='client' />
 	
-	<!-- Comment this out during development -->
-	<add-linker name="xs" /> 
-   
+	<add-linker name="xsiframe" /> 
+    
 </module>

@@ -7,8 +7,6 @@ import org.peimari.domain.Result;
 import org.peimari.domain.ResultList;
 import org.peimari.domain.SplitTime;
 
-import com.google.gwt.dom.client.LIElement;
-
 public class PirilaHtmlParser {
 
 	public ResultList parse(String text) {
@@ -16,10 +14,11 @@ public class PirilaHtmlParser {
 		String[] lines = text.split("\n");
 		for (int i = 0; i < lines.length; i++) {
 			String line = lines[i];
-			if (line.startsWith("<H3>") && line.contains("Tilanne rasteilla")) {
+			if (line.startsWith("<H3") && line.contains("Tilanne rasteilla")) {
 				ClassResult classResult = new ClassResult();
-				classResult.setClassName(line.substring(4).substring(0,
-						line.indexOf(" ") - 4));
+				line = line.substring(line.lastIndexOf("<H3>") + 4);
+				classResult.setClassName(line.substring(0,
+						line.indexOf(" ")));
 				i = readResults(classResult, lines, i + 1);
 				rl.getClassResults().add(classResult);
 			}
