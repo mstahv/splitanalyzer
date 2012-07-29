@@ -16,17 +16,8 @@
 
 	<build>
 		<resources>
-			<!-- Package this sources and .gwt.xml files to make this compatible with 
-				GWT -->
 			<resource>
 				<directory>src/main/java</directory>
-				<includes>
-					<include>**/*.java</include>
-					<include>**/*.gwt.xml</include>
-				</includes>
-			</resource>
-			<resource>
-				<directory>src/main/resources</directory>
 			</resource>
 		</resources>
 
@@ -56,16 +47,19 @@
 			<groupId>org.peimari</groupId>
 			<artifactId>iofdomain</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.google.gwt</groupId>
 			<artifactId>gwt-user</artifactId>
 			<version>2.5.0-rc1</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.moxieapps.gwt</groupId>
 			<artifactId>org.moxieapps.gwt.highcharts</artifactId>
 			<version>1.2.0</version>
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
