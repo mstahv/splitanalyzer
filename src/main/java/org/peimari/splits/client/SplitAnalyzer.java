@@ -13,7 +13,6 @@ import org.peimari.domain.SplitTime;
 import org.peimari.util.Util;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -21,7 +20,6 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
@@ -78,7 +76,7 @@ public class SplitAnalyzer extends FlowPanel {
 		nameField.setFocus(true);
 		nameField.selectAll();
 
-		nameField.setValue(GWT.getHostPageBaseURL() + "tasti2.xml");
+		nameField.setValue(GWT.getHostPageBaseURL() + "vali.html");
 
 		sendButton.addClickHandler(new ClickHandler() {
 
@@ -219,11 +217,15 @@ public class SplitAnalyzer extends FlowPanel {
 
 		for (int i = 0; i < results.size(); i++) {
 			final Result r = results.get(i);
-			if (r.getCompetitorStatus() != CompetitorStatus.OK) {
+			if (r.getCompetitorStatus() == CompetitorStatus.NOTCOMPETING) {
 				continue;
 			}
 			final int row = i + 1;
 			String html = r.getPosition() + ". " + r.getPerson().toString();
+			if(r.getCompetitorStatus() != CompetitorStatus.OK) {
+				html = r.getCompetitorStatus() + " " + r.getPerson().toString();
+				grid.getRowFormatter().addStyleName(i, "nonok");
+			}
 			Label name = new HTML(html);
 			name.addClickHandler(new ClickHandler() {
 				@Override
@@ -238,8 +240,6 @@ public class SplitAnalyzer extends FlowPanel {
 			if (r.getCompetitorStatus() == CompetitorStatus.OK) {
 				long time = r.getTime();
 				grid.setHTML(row, 1, Util.formatTime(time));
-			} else {
-				grid.setHTML(row, 1, r.getCompetitorStatus().name());
 			}
 
 			List<SplitTime> splitTimes = r.getSplitTimes();
@@ -270,9 +270,13 @@ public class SplitAnalyzer extends FlowPanel {
 						sb.append(toBestStr);
 						sb.append("'");
 					}
-					String deltaRow = ">(" + splitTime.getDeltaPosition()
-							+ ") " + Util.formatTime(splitTime.getDeltaTime());
-					sb.append(deltaRow);
+					sb.append(">");
+					if(r.getCompetitorStatus() == CompetitorStatus.OK) {
+						sb.append("(");
+						sb.append(splitTime.getDeltaPosition());
+						sb.append(")");
+					}
+					sb.append(Util.formatTime(splitTime.getDeltaTime()));
 					sb.append("</div>");
 
 					if (inlineDifferences) {
@@ -291,8 +295,12 @@ public class SplitAnalyzer extends FlowPanel {
 					}
 
 					sb.append(">");
-					sb.append("(" + splitTime.getPosition() + ") "
-							+ Util.formatTime(splitTime.getTime()));
+					if(r.getCompetitorStatus() != CompetitorStatus.OK) {
+						sb.append("(");
+						sb.append(splitTime.getPosition());
+						sb.append(")");
+					}
+					sb.append(Util.formatTime(splitTime.getTime()));
 					sb.append("</div>");
 					if (inlineDifferences) {
 						sb.append(toBestStr);

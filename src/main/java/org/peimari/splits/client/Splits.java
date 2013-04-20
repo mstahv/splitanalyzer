@@ -1,7 +1,6 @@
 package org.peimari.splits.client;
 
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.HeadElement;
@@ -28,7 +27,7 @@ public class Splits implements EntryPoint {
 
 	private native boolean analyzeSelf()
 	/*-{
-		return $wnd.splitanalyzeself;
+		return $wnd.splitanalyzeself ? true :false;
 	}-*/;
 
 	private native boolean publishJsApi()
@@ -61,7 +60,7 @@ public class Splits implements EntryPoint {
 
     private native static boolean isInjected() 
     /*-{
-		return $wnd.Highcharts;
+		return $wnd.Highcharts ? true: false;
 	}-*/;
 
 	private static HeadElement head;
