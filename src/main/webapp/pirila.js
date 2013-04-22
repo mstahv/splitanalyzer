@@ -1,7 +1,7 @@
 (function() {
 	window.onload = function() {
 		var v = document.createElement("BUTTON");
-		v.innerHTML = "PeimariSplitAnalyzer";
+		v.innerHTML = "SplitAnalyzer";
 		var f = function() {
 			var script = document.createElement('SCRIPT');
 			script.type = 'text/javascript';
