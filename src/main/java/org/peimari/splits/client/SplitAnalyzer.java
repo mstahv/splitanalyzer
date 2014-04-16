@@ -125,7 +125,7 @@ public class SplitAnalyzer extends FlowPanel {
             @Override
             public void onValueChange(ValueChangeEvent<Boolean> event) {
                 splits = event.getValue();
-                renderSelectedClass();
+                drawGrid();
             }
         });
         l = new Label("Cumulative times:");
@@ -137,7 +137,7 @@ public class SplitAnalyzer extends FlowPanel {
             @Override
             public void onValueChange(ValueChangeEvent<Boolean> event) {
                 cumutimes = event.getValue();
-                renderSelectedClass();
+                drawGrid();
             }
         });
 
@@ -150,7 +150,7 @@ public class SplitAnalyzer extends FlowPanel {
             @Override
             public void onValueChange(ValueChangeEvent<Boolean> event) {
                 inlineDifferences = event.getValue().booleanValue();
-                renderSelectedClass();
+                drawGrid();
             }
         });
 
@@ -224,6 +224,13 @@ public class SplitAnalyzer extends FlowPanel {
         calculateSuperman(results, superman, leader);
 
         drawGrid();
+        
+        for (int i = 0; i < 3; i++) {
+            try {
+                toggleSelection(i+1, results.get(i));
+            } catch (Exception e) {}
+        }
+        
     }
 
     private void drawGrid() {
@@ -342,9 +349,9 @@ public class SplitAnalyzer extends FlowPanel {
                 }
 
                 grid.setHTML(row, j + 2, sb.toString());
-            }
-            if (i < 3) {
-                toggleSelection(row, r);
+                if(selectedResults.contains(r)) {
+                    grid.getRowFormatter().addStyleName(row, "selected");
+                }
             }
         }
         add(grid);
