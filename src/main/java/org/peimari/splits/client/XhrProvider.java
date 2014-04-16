@@ -49,6 +49,13 @@ public class XhrProvider {
 				}
 				if(rl == null) {
 					try {
+						rl = new AaltonenHtmlParser().parse(text);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				if(rl == null) {
+					try {
 						rl = new PirilaHtmlParser().parse(text);
 					} catch (Exception e) {
 						e.printStackTrace();

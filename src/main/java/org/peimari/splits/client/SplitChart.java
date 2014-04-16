@@ -22,7 +22,7 @@ import org.peimari.util.Util;
 
 public class SplitChart extends Chart {
 
-	public SplitChart(Collection<Result> results, boolean compareToSuperman) {
+	public SplitChart(Collection<Result> results, SplitAnalyzer.ReferenceTime reference) {
 		addStyleName("split-chart");
 		setType(Series.Type.SPLINE);
 		setChartTitleText("Split time visualization");
@@ -32,7 +32,7 @@ public class SplitChart extends Chart {
 				long cumulative = toolTipData.getXAsLong() + delta;
 				return "<b>" + toolTipData.getSeriesName() + "</b>"
 						+ toolTipData.getPointName() + "<br/>"
-						+ Util.formatTime(cumulative) + " : +"
+						+ Util.formatTime(cumulative) + " : " + (delta > 0 ? "+" : "")
 						+ Util.formatTime(delta) + " s";
 			}
 		}));
@@ -58,16 +58,20 @@ public class SplitChart extends Chart {
 
 		getYAxis().setDateTimeLabelFormats(new DateTimeLabelFormats());
 
-		ArrayList<SplitTime> zeroLine = new ArrayList<SplitTime>();
-		if(compareToSuperman) {
-			SplitAnalyzer.calculateSuperman(results, zeroLine);
-		} else {
+		ArrayList<SplitTime> zeroLine = new ArrayList<>();
+		ArrayList<SplitTime> leader = new ArrayList<>();
+		if(reference == SplitAnalyzer.ReferenceTime.Winner) {
 			// compare to first result
 			Result r = results.iterator().next();
 			List<SplitTime> splitTimes2 = r.getSplitTimes();
 			for (int i = 0; i < splitTimes2.size(); i++) {
 				zeroLine.add(splitTimes2.get(i));
 			}
+		} else {
+			SplitAnalyzer.calculateSuperman(results, zeroLine, leader);
+            if(reference == SplitAnalyzer.ReferenceTime.Leader) {
+                zeroLine = leader;
+            }
 		}
 
 		for (Result result : results) {

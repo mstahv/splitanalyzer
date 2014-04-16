@@ -4,6 +4,7 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.HeadElement;
+import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.dom.client.ScriptElement;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -19,7 +20,21 @@ public class Splits implements EntryPoint {
 	public void onModuleLoad() {
 		boolean publishJsApi = publishJsApi();
 		if(analyzeSelf()) {
-			load(Window.Location.getHref(), null);
+            // Detect if aaltosen online
+            Element sisalto = Document.get().getElementById("sisalto");
+            if(sisalto != null) {
+                Element el = Document.get().createElement("div");
+                el.setId("sa");
+                Element h3 = sisalto.getElementsByTagName("h3").getItem(0);
+                if(h3 != null) {
+                    h3.getParentElement().insertAfter(el, h3);
+                } else {
+                    sisalto.insertFirst(el);
+                }
+    			load(Window.Location.getHref(), "sa");
+            } else {
+    			load(Window.Location.getHref(), null);
+            }
 		} else if(publishJsApi) {
 			load(null, null);
 		}

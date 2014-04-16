@@ -32,378 +32,416 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 
 public class SplitAnalyzer extends FlowPanel {
-	private FlowPanel settingsPanel;
+    private List<Result> results;
 
-	private Grid grid;
+    enum ReferenceTime {
 
-	private List<ClassResult> classResults;
+        Superman, Leader, Winner
+    }
 
-	private Widget graph;
+    private FlowPanel settingsPanel;
 
-	private boolean splits = true;
-	private boolean cumutimes = false;
-	private boolean inlineDifferences = false;
+    private Grid grid;
 
-	private ListBox classSelector;
+    private List<ClassResult> classResults;
 
-	private Button graphButton;
+    private Widget graph;
 
-	private Collection<Result> selectedResults = new ArrayList<Result>();
+    private boolean splits = true;
+    private boolean cumutimes = false;
+    private boolean inlineDifferences = false;
 
-	private CheckBox supermanCheckBox;
-	
-	public SplitAnalyzer(String url) {
-		addStyleName("splitanalyzer");
-		settingsPanel = new FlowPanel();
-		settingsPanel.addStyleName("settings");
-		add(settingsPanel);
+    private ListBox classSelector;
 
-		if (url != null) {
-			getResults(url);
-			settingsPanel.add(new Label("Loading..."));
-			return;
-		}
+    private Button graphButton;
 
-		final TextBox nameField = new TextBox();
-		final Button sendButton = new Button("Show splits");
-		nameField.setText("Splits url (TODO)");
-		// We can add style names to widgets
-		sendButton.addStyleName("sendButton");
-		settingsPanel.add(nameField);
-		settingsPanel.add(sendButton);
+    private Collection<Result> selectedResults = new ArrayList<Result>();
 
-		// Focus the cursor on the name field when the app loads
-		nameField.setFocus(true);
-		nameField.selectAll();
+    private ArrayList<SplitTime> superman;
+    private List<SplitTime> winner;
+    private ArrayList<SplitTime> leader;
+    private ReferenceTime referenceTime = ReferenceTime.Superman;
 
-		nameField.setValue(GWT.getHostPageBaseURL() + "vali.html");
+    public SplitAnalyzer(String url) {
+        addStyleName("splitanalyzer");
+        settingsPanel = new FlowPanel();
+        settingsPanel.addStyleName("settings");
+        add(settingsPanel);
 
-		sendButton.addClickHandler(new ClickHandler() {
+        if (url != null) {
+            getResults(url);
+            settingsPanel.add(new Label("Loading..."));
+            return;
+        }
 
-			@Override
-			public void onClick(ClickEvent event) {
-				getResults(nameField.getValue());
+        final TextBox nameField = new TextBox();
+        final Button sendButton = new Button("Show splits");
+        nameField.setText("Splits url (TODO)");
+        // We can add style names to widgets
+        sendButton.addStyleName("sendButton");
+        settingsPanel.add(nameField);
+        settingsPanel.add(sendButton);
 
-			}
-		});
+        // Focus the cursor on the name field when the app loads
+        nameField.setFocus(true);
+        nameField.selectAll();
 
-	}
+        nameField.setValue(GWT.getHostPageBaseURL() + "vali.html");
 
-	public void setResultList(ResultList result) {
-		settingsPanel.clear();
+        sendButton.addClickHandler(new ClickHandler() {
 
-		classResults = result.getClassResults();
+            @Override
+            public void onClick(ClickEvent event) {
+                getResults(nameField.getValue());
 
-		classSelector = new ListBox();
-		for (ClassResult classResult : classResults) {
-			classSelector.addItem(classResult.getClassName());
-		}
-		classSelector.addChangeHandler(new ChangeHandler() {
-			@Override
-			public void onChange(ChangeEvent event) {
-				renderSelectedClass();
-			}
-		});
+            }
+        });
 
-		settingsPanel.add(classSelector);
-		Label l = new Label("Split times:");
-		CheckBox checkBox = new CheckBox();
-		settingsPanel.add(l);
-		settingsPanel.add(checkBox);
-		checkBox.setValue(true);
-		checkBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-			@Override
-			public void onValueChange(ValueChangeEvent<Boolean> event) {
-				splits = event.getValue();
-				renderSelectedClass();
-			}
-		});
-		l = new Label("Cumulative times:");
-		checkBox = new CheckBox();
-		settingsPanel.add(l);
-		settingsPanel.add(checkBox);
-		checkBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+    }
 
-			@Override
-			public void onValueChange(ValueChangeEvent<Boolean> event) {
-				cumutimes = event.getValue();
-				renderSelectedClass();
-			}
-		});
+    public void setResultList(ResultList result) {
+        settingsPanel.clear();
 
-		l = new Label("Inline differences:");
-		checkBox = new CheckBox();
-		settingsPanel.add(l);
-		settingsPanel.add(checkBox);
-		checkBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+        classResults = result.getClassResults();
 
-			@Override
-			public void onValueChange(ValueChangeEvent<Boolean> event) {
-				inlineDifferences = event.getValue().booleanValue();
-				renderSelectedClass();
-			}
-		});
+        classSelector = new ListBox();
+        for (ClassResult classResult : classResults) {
+            classSelector.addItem(classResult.getClassName());
+        }
+        classSelector.addChangeHandler(new ChangeHandler() {
+            @Override
+            public void onChange(ChangeEvent event) {
+                renderSelectedClass();
+            }
+        });
 
-		setClassResults(classResults.get(0));
+        settingsPanel.add(classSelector);
+        Label l = new Label("Split times:");
+        CheckBox checkBox = new CheckBox();
+        settingsPanel.add(l);
+        settingsPanel.add(checkBox);
+        checkBox.setValue(true);
+        checkBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<Boolean> event) {
+                splits = event.getValue();
+                renderSelectedClass();
+            }
+        });
+        l = new Label("Cumulative times:");
+        checkBox = new CheckBox();
+        settingsPanel.add(l);
+        settingsPanel.add(checkBox);
+        checkBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
 
-		graphButton = new Button("Visualize selected");
-		graphButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				doVisualization();
-			}
+            @Override
+            public void onValueChange(ValueChangeEvent<Boolean> event) {
+                cumutimes = event.getValue();
+                renderSelectedClass();
+            }
+        });
 
-		});
+        l = new Label("Inline differences:");
+        checkBox = new CheckBox();
+        settingsPanel.add(l);
+        settingsPanel.add(checkBox);
+        checkBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
 
-		l = new Label("Visualize to 'superman':");
-		String supermanExplanation = "'Superman' makes always the best time for each control. When this is selected charts baseline is the superman calculated from selected runners. Otherwise the first (in selection order) is used as baseline.";
-		l.setTitle(supermanExplanation);
-		supermanCheckBox = new CheckBox();
-		supermanCheckBox.setTitle(supermanExplanation);
-		supermanCheckBox.setValue(true);
-		settingsPanel.add(l);
-		settingsPanel.add(supermanCheckBox);
-		supermanCheckBox
-				.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<Boolean> event) {
+                inlineDifferences = event.getValue().booleanValue();
+                renderSelectedClass();
+            }
+        });
 
-					@Override
-					public void onValueChange(ValueChangeEvent<Boolean> event) {
-						if (graph != null) {
-							doVisualization();
-						}
-					}
-				});
+        setClassResults(classResults.get(0));
 
-		settingsPanel.add(graphButton);
+        graphButton = new Button("Visualize selected");
+        graphButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                doVisualization();
+            }
 
-	}
+        });
 
-	private void renderSelectedClass() {
-		int selectedIndex = classSelector.getSelectedIndex();
-		ClassResult classResult = classResults.get(selectedIndex);
-		setClassResults(classResult);
-	}
+        final ListBox listBox = new ListBox();
+        listBox.addItem("'superman'");
+        listBox.addItem("leader");
+        listBox.addItem("winner");
+        listBox.addChangeHandler(new ChangeHandler() {
 
-	protected void setClassResults(ClassResult classResult) {
-		if (graph != null) {
-			graph.removeFromParent();
-		}
-		selectedResults.clear();
-		classResult.analyzeSplitTimes();
+            @Override
+            public void onChange(ChangeEvent event) {
+                referenceTime = ReferenceTime.values()[listBox.
+                        getSelectedIndex()];
+                drawGrid();
+                if (graph != null) {
+                    doVisualization();
+                }
+            }
+        });
 
-		List<Result> results = classResult.getResults();
-		ArrayList<SplitTime> superman = new ArrayList<SplitTime>();
-		calculateSuperman(results, superman);
+        l = new Label("Reference to:");
+        String supermanExplanation = "'Superman' makes always the best time for each control. When this is selected charts baseline is the superman calculated from selected runners. Otherwise the first (in selection order) is used as baseline.";
+        l.setTitle(supermanExplanation);
+        settingsPanel.add(l);
+        settingsPanel.add(listBox);
 
-		int size = results.get(0).getSplitTimes().size();
+        settingsPanel.add(graphButton);
 
-		long bestTime = superman.get(superman.size() - 1).getTime();
+    }
 
-		int cols = size + 3;
-		int rows = results.size() + 1; // competitors + header
+    private void renderSelectedClass() {
+        int selectedIndex = classSelector.getSelectedIndex();
+        ClassResult classResult = classResults.get(selectedIndex);
+        setClassResults(classResult);
+    }
 
-		if (grid != null) {
-			grid.removeFromParent();
-		}
-		grid = new Grid(rows, cols);
+    public List<SplitTime> getReferenceSplits() {
+        switch (referenceTime) {
+            case Leader:
+                return leader;
+            case Winner:
+                return winner;
+            case Superman:
+            default:
+                return superman;
+        }
+    }
 
-		grid.getRowFormatter().addStyleName(0, "header");
+    protected void setClassResults(ClassResult classResult) {
+        if (graph != null) {
+            graph.removeFromParent();
+        }
+        selectedResults.clear();
+        classResult.analyzeSplitTimes();
 
-		grid.setHTML(0, 1, "Total");
-		grid.setHTML(0, 2, "K-1");
-		for (int i = 1; i < size; i++) {
-			grid.setHTML(0, i + 2, i + "-" + (i + 1));
-		}
+        results = classResult.getResults();
+        superman = new ArrayList<>();
+        winner = classResult.getResults().get(0).getSplitTimes();
+        leader = new ArrayList<>();
+        calculateSuperman(results, superman, leader);
 
-		for (int i = 0; i < results.size(); i++) {
-			final Result r = results.get(i);
-			if (r.getCompetitorStatus() == CompetitorStatus.NOTCOMPETING) {
-				continue;
-			}
-			final int row = i + 1;
-			String html = r.getPosition() + ". " + r.getPerson().toString();
-			if(r.getCompetitorStatus() != CompetitorStatus.OK) {
-				html = r.getCompetitorStatus() + " " + r.getPerson().toString();
-				grid.getRowFormatter().addStyleName(i, "nonok");
-			}
-			Label name = new HTML(html);
-			name.addClickHandler(new ClickHandler() {
-				@Override
-				public void onClick(ClickEvent event) {
-					toggleSelection(row, r);
-				}
-			});
-			name.setTitle("Click to highlight/dehightlight");
-			grid.setWidget(row, 0, name);
-			grid.getCellFormatter().addStyleName(row, 0, "name");
+        drawGrid();
+    }
 
-			if (r.getCompetitorStatus() == CompetitorStatus.OK) {
-				long time = r.getTime();
-				grid.setHTML(row, 1, Util.formatTime(time));
-			}
+    private void drawGrid() {
+        int size = results.get(0).getSplitTimes().size();
+        
+        long superManTime = superman.get(superman.size() - 1).getTime();
 
-			List<SplitTime> splitTimes = r.getSplitTimes();
-			for (int j = 0; j < splitTimes.size(); j++) {
-				SplitTime splitTime = splitTimes.get(j);
-				// Direct HTML generation for better performance performance
-				StringBuilder sb = new StringBuilder();
-				// TODO relative time should ignore worst n splits
-				// TODO consider making split pos matter a bit
+        int cols = size + 3;
+        int rows = results.size() + 1; // competitors + header
 
-				Long superManDelta = superman.get(j).getDeltaTime();
-				double expectedTime = (superManDelta * r.getTime() / (double) bestTime);
-				double relativeSuccesBasedOnTime = splitTime.getDeltaTime()
-						/ expectedTime;
-				String styleNameForSuccess = getStyleNameForSuccess(relativeSuccesBasedOnTime);
-				if (splits) {
-					boolean best = splitTime.getDeltaPosition() == 1;
-					long toBest = splitTime.getDeltaTime() - superManDelta;
-					String toBestStr = "+" + Util.formatTime(toBest);
-					if (best) {
-						styleNameForSuccess += " best";
-					}
-					sb.append("<div class='");
-					sb.append(styleNameForSuccess);
-					sb.append("'");
-					if (!inlineDifferences) {
-						sb.append(" title='");
-						sb.append(toBestStr);
-						sb.append("'");
-					}
-					sb.append(">");
-					if(r.getCompetitorStatus() == CompetitorStatus.OK) {
-						sb.append("(");
-						sb.append(splitTime.getDeltaPosition());
-						sb.append(")");
-					}
-					sb.append(Util.formatTime(splitTime.getDeltaTime()));
-					sb.append("</div>");
+        if (grid != null) {
+            grid.removeFromParent();
+        }
+        grid = new Grid(rows, cols);
 
-					if (inlineDifferences) {
-						sb.append(toBestStr);
-					}
-				}
-				if (cumutimes) {
-					long toBest = splitTime.getTime()
-							- superman.get(j).getTime();
-					String toBestStr = "+" + Util.formatTime(toBest);
-					sb.append("<div");
-					if (!inlineDifferences) {
-						sb.append(" title='");
-						sb.append(toBestStr);
-						sb.append("'");
-					}
+        grid.getRowFormatter().addStyleName(0, "header");
 
-					sb.append(">");
-					if(r.getCompetitorStatus() != CompetitorStatus.OK) {
-						sb.append("(");
-						sb.append(splitTime.getPosition());
-						sb.append(")");
-					}
-					sb.append(Util.formatTime(splitTime.getTime()));
-					sb.append("</div>");
-					if (inlineDifferences) {
-						sb.append(toBestStr);
-					}
-				}
+        grid.setHTML(0, 1, "Total");
+        grid.setHTML(0, 2, "K-1");
+        for (int i = 1; i < size; i++) {
+            grid.setHTML(0, i + 2, i + "-" + (i + 1));
+        }
 
-				grid.setHTML(row, j + 2, sb.toString());
-			}
-			if (i < 3) {
-				toggleSelection(row, r);
-			}
-		}
-		add(grid);
-	}
+        for (int i = 0; i < results.size(); i++) {
+            final Result r = results.get(i);
+            if (r.getCompetitorStatus() == CompetitorStatus.NOTCOMPETING) {
+                continue;
+            }
+            final int row = i + 1;
+            String html = r.getPosition() + ". " + r.getPerson().toString();
+            if (r.getCompetitorStatus() != CompetitorStatus.OK) {
+                html = r.getCompetitorStatus() + " " + r.getPerson().toString();
+                grid.getRowFormatter().addStyleName(i, "nonok");
+            }
+            Label name = new HTML(html);
+            name.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    toggleSelection(row, r);
+                }
+            });
+            name.setTitle("Click to highlight/dehightlight");
+            grid.setWidget(row, 0, name);
+            grid.getCellFormatter().addStyleName(row, 0, "name");
 
-	private String getStyleNameForSuccess(double relativeSuccesBasedOnTime) {
-		if (relativeSuccesBasedOnTime > 1.25) {
-			return "verybad";
-		}
-		if (relativeSuccesBasedOnTime > 1.1) {
-			return "bad";
-		}
-		if (relativeSuccesBasedOnTime > 0.95) {
-			return "ok";
-		}
-		if (relativeSuccesBasedOnTime > 0.8) {
-			return "good";
-		}
-		return "verygood";
-	}
+            if (r.getCompetitorStatus() == CompetitorStatus.OK) {
+                long time = r.getTime();
+                grid.setHTML(row, 1, Util.formatTime(time));
+            }
 
-	/**
-	 * Send the name from the nameField to the server and wait for a response.
-	 * 
-	 * @param url
-	 */
-	private void getResults(String url) {
-		AsyncCallback<ResultList> callback = new AsyncCallback<ResultList>() {
-			public void onFailure(Throwable caught) {
-				Window.alert(caught.getMessage());
-			}
+            List<SplitTime> splitTimes = r.getSplitTimes();
+            for (int j = 0; j < splitTimes.size(); j++) {
+                SplitTime splitTime = splitTimes.get(j);
+                // Direct HTML generation for better performance performance
+                StringBuilder sb = new StringBuilder();
+                // TODO relative time should ignore worst n splits
+                // TODO consider making split pos matter a bit
 
-			@Override
-			public void onSuccess(ResultList result) {
-				setResultList(result);
-			}
-		};
-		new XhrProvider().getResults(url, this);
-	}
+                Long superManDelta = superman.get(j).getDeltaTime();
+                double expectedTime = (superManDelta * r.getTime() / (double) superManTime);
+                double relativeSuccesBasedOnTime = splitTime.getDeltaTime()
+                        / expectedTime;
+                String styleNameForSuccess = getStyleNameForSuccess(
+                        relativeSuccesBasedOnTime);
+                if (splits) {
+                    boolean best = splitTime.getDeltaPosition() == 1;
+                    long toBest = splitTime.getDeltaTime() - getReferenceSplits().
+                            get(j).getDeltaTime();
+                    String toBestStr = (toBest > 0 ? "+" : "") + Util.formatTime(toBest);
+                    if (best) {
+                        styleNameForSuccess += " best";
+                    }
+                    sb.append("<div class='");
+                    sb.append(styleNameForSuccess);
+                    sb.append("'");
+                    if (!inlineDifferences) {
+                        sb.append(" title='");
+                        sb.append(toBestStr);
+                        sb.append("'");
+                    }
+                    sb.append(">");
+                    if (r.getCompetitorStatus() == CompetitorStatus.OK) {
+                        sb.append("(");
+                        sb.append(splitTime.getDeltaPosition());
+                        sb.append(")");
+                    }
+                    sb.append(Util.formatTime(splitTime.getDeltaTime()));
+                    sb.append("</div>");
 
-	private void toggleSelection(final int row, Result r) {
-		String styleName = grid.getRowFormatter().getStyleName(row);
-		if (styleName.contains("selected")) {
-			grid.getRowFormatter().removeStyleName(row, "selected");
-			selectedResults.remove(r);
-		} else {
-			grid.getRowFormatter().addStyleName(row, "selected");
-			if (!selectedResults.contains(r)) {
-				selectedResults.add(r);
-			}
-		}
-	}
+                    if (inlineDifferences) {
+                        sb.append(toBestStr);
+                    }
+                }
+                if (cumutimes) {
+                    long toBest = splitTime.getTime()
+                            - getReferenceSplits().get(j).getTime();
+                    String toBestStr = "+" + Util.formatTime(toBest);
+                    sb.append("<div");
+                    if (!inlineDifferences) {
+                        sb.append(" title='");
+                        sb.append(toBestStr);
+                        sb.append("'");
+                    }
 
-	private void doVisualization() {
-		if (selectedResults.size() < 2) {
-			Window.alert("Selelct at least two results for graph");
-		} else {
-			if (graph != null) {
-				graph.removeFromParent();
-			}
-			graph = new SplitChart(selectedResults, supermanCheckBox.getValue()
-					.booleanValue());
-			insert(graph, 1);
-		}
-	}
+                    sb.append(">");
+                    if (r.getCompetitorStatus() != CompetitorStatus.OK) {
+                        sb.append("(");
+                        sb.append(splitTime.getPosition());
+                        sb.append(")");
+                    }
+                    sb.append(Util.formatTime(splitTime.getTime()));
+                    sb.append("</div>");
+                    if (inlineDifferences) {
+                        sb.append(toBestStr);
+                    }
+                }
 
-	public static void calculateSuperman(Collection<Result> results,
-			ArrayList<SplitTime> zeroLine) {
-		boolean first = true;
-		for (Iterator<Result> iterator = results.iterator(); iterator.hasNext();) {
-			Result r = (Result) iterator.next();
-			if (r.getCompetitorStatus() == CompetitorStatus.OK) {
-				List<SplitTime> splitTimes = r.getSplitTimes();
-				for (int i = 0; i < splitTimes.size(); i++) {
-					SplitTime splitTime = splitTimes.get(i);
-					if (first) {
-						SplitTime s = new SplitTime();
-						s.setDeltaTime(splitTime.getDeltaTime());
-						zeroLine.add(s);
-					} else {
-						SplitTime s = zeroLine.get(i);
-						if (splitTime.getDeltaTime() < s.getDeltaTime()) {
-							s.setDeltaTime(splitTime.getDeltaTime());
-						}
-					}
-				}
-				first = false;
-			}
-		}
-		long cumu = 0;
-		for (SplitTime splitTime : zeroLine) {
-			cumu += splitTime.getDeltaTime();
-			splitTime.setTime(cumu);
-		}
-	}
+                grid.setHTML(row, j + 2, sb.toString());
+            }
+            if (i < 3) {
+                toggleSelection(row, r);
+            }
+        }
+        add(grid);
+    }
+
+    private String getStyleNameForSuccess(double relativeSuccesBasedOnTime) {
+        if (relativeSuccesBasedOnTime > 1.25) {
+            return "verybad";
+        }
+        if (relativeSuccesBasedOnTime > 1.1) {
+            return "bad";
+        }
+        if (relativeSuccesBasedOnTime > 0.95) {
+            return "ok";
+        }
+        if (relativeSuccesBasedOnTime > 0.8) {
+            return "good";
+        }
+        return "verygood";
+    }
+
+    /**
+     * Send the name from the nameField to the server and wait for a response.
+     *
+     * @param url
+     */
+    private void getResults(String url) {
+        AsyncCallback<ResultList> callback = new AsyncCallback<ResultList>() {
+            public void onFailure(Throwable caught) {
+                Window.alert(caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(ResultList result) {
+                setResultList(result);
+            }
+        };
+        new XhrProvider().getResults(url, this);
+    }
+
+    private void toggleSelection(final int row, Result r) {
+        String styleName = grid.getRowFormatter().getStyleName(row);
+        if (styleName.contains("selected")) {
+            grid.getRowFormatter().removeStyleName(row, "selected");
+            selectedResults.remove(r);
+        } else {
+            grid.getRowFormatter().addStyleName(row, "selected");
+            if (!selectedResults.contains(r)) {
+                selectedResults.add(r);
+            }
+        }
+    }
+
+    private void doVisualization() {
+        if (selectedResults.size() < 2) {
+            Window.alert("Selelct at least two results for graph");
+        } else {
+            if (graph != null) {
+                graph.removeFromParent();
+            }
+            graph = new SplitChart(selectedResults, referenceTime);
+            insert(graph, 1);
+        }
+    }
+
+    public static void calculateSuperman(Collection<Result> results,
+            ArrayList<SplitTime> superman, ArrayList<SplitTime> leader) {
+        boolean first = true;
+        for (Iterator<Result> iterator = results.iterator(); iterator.hasNext();) {
+            Result r = (Result) iterator.next();
+            if (r.getCompetitorStatus() == CompetitorStatus.OK) {
+                List<SplitTime> splitTimes = r.getSplitTimes();
+                for (int i = 0; i < splitTimes.size(); i++) {
+                    SplitTime splitTime = splitTimes.get(i);
+                    if (first) {
+                        SplitTime s = new SplitTime();
+                        s.setDeltaTime(splitTime.getDeltaTime());
+                        superman.add(s);
+                        leader.add(splitTime);
+                    } else {
+                        SplitTime s = superman.get(i);
+                        if (splitTime.getDeltaTime() < s.getDeltaTime()) {
+                            s.setDeltaTime(splitTime.getDeltaTime());
+                        }
+                        s = leader.get(i);
+                        if (splitTime.getTime() < s.getTime()) {
+                            leader.set(i, splitTime);
+                        }
+                    }
+                }
+                first = false;
+            }
+        }
+        long cumu = 0;
+        for (SplitTime splitTime : superman) {
+            cumu += splitTime.getDeltaTime();
+            splitTime.setTime(cumu);
+        }
+    }
 }
