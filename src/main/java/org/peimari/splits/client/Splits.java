@@ -1,11 +1,10 @@
 package org.peimari.splits.client;
 
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.ScriptInjector;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.HeadElement;
-import com.google.gwt.dom.client.NodeList;
-import com.google.gwt.dom.client.ScriptElement;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.RootPanel;
 
@@ -56,7 +55,7 @@ public class Splits implements EntryPoint {
 
 	public static void load(String url, String id) {
 		MyResources.INSTANCE.css().ensureInjected();
-		injectScripts();
+		ensureHighcharts();
 		final SplitAnalyzer w = new SplitAnalyzer(url);
 		if (id != null) {
 			RootPanel.get(id).clear();
@@ -66,42 +65,29 @@ public class Splits implements EntryPoint {
 		}
 	}
 
-	private static void injectScripts() {
+	private static void ensureHighcharts() {
 		if(!isInjected()) {
 			inject(MyResources.INSTANCE.jQuery().getText());
 			inject(MyResources.INSTANCE.highcharts().getText());
 		}
 	}
 
+    public static void inject(String javascript) {
+        ScriptInjector.fromString(javascript).setWindow(topWindow()).inject();
+    }
+    
+    /**
+     * TODO
+     * @return 
+     */
+    private static native JavaScriptObject topWindow() 
+    /*-{
+        return $wnd;
+    }-*/;
+
     private native static boolean isInjected() 
     /*-{
 		return $wnd.Highcharts ? true: false;
 	}-*/;
 
-	private static HeadElement head;
-    
-    public static void inject(String javascript) {
-        HeadElement head = getHead();
-        ScriptElement element = createScriptElement();
-        element.setText(javascript);
-        head.appendChild(element);
-    }
- 
-    private static ScriptElement createScriptElement() {
-        ScriptElement script = Document.get().createScriptElement();
-        script.setAttribute("language", "javascript");
-        return script;
-    }
- 
-    private static HeadElement getHead() {
-        if (head == null) {
-            Element element = Document.get().getElementsByTagName("head")
-                    .getItem(0);
-            assert element != null : "HTML Head element required";
-            head = HeadElement.as(element);
-        }
-        return head;
-    }
-
-	
 }
