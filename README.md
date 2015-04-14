@@ -16,7 +16,14 @@ Although the app is as such quite low quality piece of software (shame on me), i
  * Injecting JavaScript libraries with XSIframeLinker. `XSIFrameLinker` don't support commonly used "&lt;script&gt;" tags in ".gwt.xml" files. Instead one can use `ResourceBundle`s and `ScriptInjector`
  * Using [Precompress](https://github.com/mstahv/splitanalyzer/blob/master/src/main/java/org/peimari/splits/Splits.gwt.xml#L13) module in .gwt.xml file will use linker that will pre compress generated js with gzip. E.g. Jetty is then by default smart enought to serve them if the browser knows gzip (and yes, all do).
 
-Note that the visualization part uses [Highcharts library](http://highcharts.com/) and its [GWT wrapper](http://www.moxiegroup.com/moxieapps/gwt-highcharts/). If you use this software you need to comfort to their license. Pretty much all orienteering usage should be fine.
+Note that the visualization part uses [Highcharts library](http://highcharts.com/) and its [GWT wrapper](http://www.moxiegroup.com/moxieapps/gwt-highcharts/). If you use this software you need to comfort to their license. Pretty much all orienteering usage should be fine. Once you have downloaded the file, install it to local maven repo with
+
+    mvn install:install-file -DgroupId=org.moxieapps.gwt  \
+    -DartifactId=org.moxieapps.gwt.highcharts \
+    -Dversion=1.5.0  \
+    -Dfile=org.moxieapps.gwt.highcharts-1.5.0.jar \
+    -Dpackaging=jar \
+    -DgeneratePom=true
 
 When starting developing (or building this project) download and add highcharts scripts to src/main/resources/org/peimari/splits/public/js directory. Then project should build with "mvn gwt:compile install" command, gwt debugger can be launched with "mvn gwt:debug".
 

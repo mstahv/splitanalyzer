@@ -61,6 +61,13 @@ public class XhrProvider {
 						e.printStackTrace();
 					}
 				}
+				if(rl == null || rl.getClassResults().size() == 0) {
+					try {
+						rl = new EresultsHtmlParser().parse(text);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
 				if(rl == null) {
 					Window.alert("Results cound't be handled format must be either 'peimari xml' or 'iof xml'.");
 				} else {
