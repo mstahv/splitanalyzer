@@ -1,6 +1,5 @@
 package org.peimari.splits.client;
 
-import com.google.gwt.user.client.Window;
 import org.peimari.domain.ClassResult;
 import org.peimari.domain.CompetitorStatus;
 import org.peimari.domain.Person;
@@ -51,48 +50,48 @@ public class EresultsHtmlParser {
 
             if (line.startsWith(" ")) { // bad logic, support only < 1000 per series
                 Result r = new Result();
-                String[] a = line.split("[ ]+");
+                String start = line.substring(0,35);
+                String resultset = line.substring(34);
                 if (line.charAt(line.length() - 1) == '-') {
                     r.setCompetitorStatus(CompetitorStatus.DISQUALIFIED);
                 } else {
                     r.setCompetitorStatus(CompetitorStatus.OK);
                 }
+                String[] a = start.split("[ ]+");
                 String firstName = a[2];
-                String lastName = a[3];
-                for (int j = 4; j < a.length; j++) {
-                    try {
-                        String str = a[j];
-                        if (str.matches("[\\-0-9].*")) {
-                            Person person = new Person();
-                            person.setFirstName(firstName);
-                            person.setLastName(lastName);
-                            r.setPerson(person);
-                            readSplits(r, a, j + 1);
-                            if (r.getCompetitorStatus() == CompetitorStatus.OK) {
-                                long time = r.getSplitTimes()
-                                        .get(r.getSplitTimes().size() - 1)
-                                        .getTime();
-                                r.setTime(time);
-                                classResult.getResults().add(r);
-                            }
-                            break;
-                        } else {
-                            lastName = lastName + " " + str;
-                        }
-                    } catch (Exception e) {
-                        // No splits or something
-                        break;
+                String lastName = a.length > 3 ? a[3] : "";
+                Person person = new Person();
+                person.setFirstName(firstName);
+                person.setLastName(lastName);
+                r.setPerson(person);
+                try {
+                    final int RESLENGHT = 11;
+                    String[] ra = new String[resultset.length()/RESLENGHT - 1];
+                    for (int j = 0; j < ra.length; j++) {
+                        int s = j*RESLENGHT;
+                        int e = s + RESLENGHT;
+                        ra[j] = resultset.substring(s , e);
                     }
+                    readSplits(r, ra);
+               } catch (Exception e) {
+                    r.setCompetitorStatus(CompetitorStatus.DIDNOTFINISH);
+                }
+                if (r.getCompetitorStatus() == CompetitorStatus.OK) {
+                    long time = r.getSplitTimes()
+                            .get(r.getSplitTimes().size() - 1)
+                            .getTime();
+                    r.setTime(time);
+                    classResult.getResults().add(r);
                 }
             }
         }
         return i;
     }
 
-    private void readSplits(Result r, String[] a, int i) {
-        for (; i < a.length; i++) {
+    private void readSplits(Result r, String[] a) {
+        for (int i = 0; i < a.length; i++) {
             String string = a[i].trim();
-            if (string.equals("-")) {
+            if (string.isEmpty() || string.equals("-")) {
                 // missed punch
                 SplitTime splitTime = new SplitTime();
                 r.setCompetitorStatus(CompetitorStatus.DISQUALIFIED);
